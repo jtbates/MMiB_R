@@ -1,8 +1,17 @@
 library(shiny)
 library(RColorBrewer)
 
-#next_p <- function(p) p + .2*p*(1-p/10) # population model
 default_next_p <- 'p + .2*p*(1-p/10)'
+
+calc_trajectory <- function(next_p_str, p0, nsteps) {
+  next_p <- parse(text=next_p_str)
+  pops <- p <- p0
+  for (i in 1:nsteps) {
+    p <- eval(next_p)
+    pops <- c(pops, p)
+  }
+  pops
+}
 
 # Define UI for application
 ui <- basicPage(
@@ -15,8 +24,8 @@ ui <- basicPage(
       textInput('next_p', "next_p = ", default_next_p),
       actionButton('updateButton', "Update model"),
       h4("Graph parameters"),
-      sliderInput('ylimit', label = "Population range to show on graph", min = 0, 
-                  max = 100, value = c(0, 20)),
+      sliderInput('ylimit', label = "Population range to show on graph",
+                  min = 0,  max = 100, value = c(0, 20)),
       numericInput('nsteps', "Number of time steps", 20,
                    min = 10, max = 100)
     ),
@@ -48,15 +57,9 @@ server <- function(input, output) {
   })
   
   observeEvent(input$plot_click, {
-    next_p <- parse(text=input$next_p)
-    p <- input$plot_click$y
-    if(!is.numeric(p)) p <- 0
-    pops <- p
-    for (i in 1:(input$nsteps)) {
-      #p <- next_p(p)
-      p <- eval(next_p)
-      pops <- c(pops, p)
-    }
+    pops <- calc_trajectory(next_p_str=input$next_p,
+                            p0=input$plot_click$y,
+                            nsteps=input$nsteps)
     data$trajectories <- c(data$trajectories, list(pops))
   })
   
@@ -66,21 +69,19 @@ server <- function(input, output) {
     plot.window(xlim = c(0, input$nsteps),  ylim=input$ylimit,
                 yaxs="i", xaxs="i")
     box()
-    axis(1, col.axis = "grey30", at=seq(0, input$nsteps, length.out=11))
-    print(input$ylimit)
+    axis(1, col.axis = "grey30",
+         at=seq(0, input$nsteps, length.out=11))
     axis(2, col.axis = "grey30",
          at=seq(input$ylimit[1], input$ylimit[2], length.out=11))
     grid(10, 10)
-    title(#main = "One-population model",
-          #sub = "The Plot Subtitle",
-          col.main = "green4",
-          col.sub = "green4",
+    title(col.main = "green4", col.sub = "green4",
           xlab = "Time", ylab = "Population p",
           col.lab = "blue", font.lab = 3)
     if(num_traj > 0) {
       for(i in 1:length(data$trajectories)) {
         trajectory <- data$trajectories[[i]] 
-        lines(data$times, trajectory, col=brewer.pal(7, "Dark2")[(i %% 7) + 1])
+        line_col <- brewer.pal(7, "Dark2")[(i %% 7) + 1]
+        lines(data$times, trajectory, col=line_col)
       }
     }
   },
