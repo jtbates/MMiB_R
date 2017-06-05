@@ -6,3 +6,4 @@ The MATLAB code that is provided with the book can be found at www.cambridge.org
 
 The Shiny apps are accessible on the web:
 * [onepop](https://jtbates.shinyapps.io/onepop/)
+* [twopop](https://jtbates.shinyapps.io/twopop/)
