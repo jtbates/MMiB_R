@@ -8,3 +8,4 @@ The Shiny apps are accessible on the web:
 * [onepop](https://jtbates.shinyapps.io/onepop/)
 * [twopop](https://jtbates.shinyapps.io/twopop/)
 * [cobweb](https://jtbates.shinyapps.io/cobweb/)
+* [sir](https://jtbates.shinyapps.io/sir_model/)
